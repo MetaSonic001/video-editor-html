@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Editor</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- SwiperJS for thumbnail slider -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <button class="btn-back" id="backBtn">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M12.5 5L7.5 10L12.5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Back
+            </button>
+            
+            <div class="header-actions">
+                <button class="btn-icon" id="undoBtn" title="Undo">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 8H13C15.2091 8 17 9.79086 17 12C17 14.2091 15.2091 16 13 16H9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M7 6L5 8L7 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span class="btn-label">Undo</span>
+                </button>
+                <button class="btn-icon" id="redoBtn" title="Redo">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M15 8H7C4.79086 8 3 9.79086 3 12C3 14.2091 4.79086 16 7 16H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M13 6L15 8L13 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span class="btn-label">Redo</span>
+                </button>
+            </div>
+            
+            <h1 class="title" id="projectTitle">Untitled Video</h1>
+            
+            <div class="header-right">
+                <button class="btn-secondary" id="saveBtn">Save</button>
+                <button class="btn-primary" id="downloadBtn">Download ⬇</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar with Pages -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h3>All Pages</h3>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <button class="btn-add-page" id="addPageBtn">+</button>
+                        <button class="btn-secondary" id="duplicatePageBtn" title="Duplicate page" style="padding:6px 8px;">⎘</button>
+                    </div>
+                </div>
+                <!-- Swiper thumbnail slider -->
+                <div class="swiper-container pages-list" id="pagesList">
+                    <div class="swiper-wrapper" id="pagesSwiperWrapper"></div>
+                    <!-- Add navigation if needed -->
+                </div>
+                <button class="btn-secondary" id="customizePagesBtn">Customize Pages</button>
+            </aside>
+
+            <!-- Canvas Area -->
+            <div class="canvas-area">
+                <div class="canvas-container">
+                    <button class="nav-btn nav-prev" id="prevSlide">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="canvas" id="canvas">
+                        <div class="slide active" id="currentSlide"></div>
+                    </div>
+                    
+                    <button class="nav-btn nav-next" id="nextSlide">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="pagination" id="pagination"></div>
+                
+                <div class="timeline-controls" style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+                    <button class="btn-secondary" id="playPreviewBtn">Play Preview ▶</button>
+                    <label style="font-size:13px;color:var(--text-secondary)">Per-slide duration (s)</label>
+                    <input id="slideDurationInput" type="number" value="2" min="0.5" step="0.5" style="width:68px;padding:6px;border-radius:6px;border:1px solid var(--border-color)">
+                </div>
+
+                <div class="zoom-controls">
+                    <button id="zoomOut">-</button>
+                    <input type="range" id="zoomSlider" min="50" max="200" value="100">
+                    <span id="zoomLevel">100%</span>
+                    <button id="zoomIn">+</button>
+                </div>
+            </div>
+
+            <!-- Properties Panel -->
+            <aside class="properties-panel" id="propertiesPanel">
+                <div class="panel-header">
+                    <button class="btn-back-small" id="backToMainPanel">←</button>
+                    <h3 id="panelTitle">Properties</h3>
+                </div>
+                
+                <div class="panel-content" id="panelContent">
+                    <div class="empty-state">
+                        <p>Select an element to edit</p>
+                    </div>
+                </div>
+                
+                <button class="btn-more-options" id="moreOptionsBtn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 7h12M4 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    More editing options
+                </button>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Modal for Templates -->
+    <div class="modal" id="templatesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Choose Template</h2>
+                <button class="btn-close" id="closeTemplatesModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="templates-grid" id="templatesGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for More Options -->
+    <div class="modal" id="moreOptionsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>More edit options</h2>
+                <button class="btn-close" id="closeMoreOptionsModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="options-grid">
+                    <button class="option-btn" id="addTextBtn">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="20" fill="currentColor">T</text>
+                        </svg>
+                        <span>Add Text</span>
+                    </button>
+                    <button class="option-btn" id="addImageBtn">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <rect x="6" y="6" width="20" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                            <path d="M6 22L12 16L18 22L26 14V26H6V22Z" fill="currentColor" opacity="0.5"/>
+                        </svg>
+                        <span>Add Image</span>
+                    </button>
+                    <button class="option-btn" id="changeBackgroundBtn">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <rect x="6" y="6" width="20" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M10 10H22V22H10V10Z" fill="currentColor" opacity="0.3"/>
+                        </svg>
+                        <span>Background</span>
+                    </button>
+                    <button class="option-btn" id="addShapeBtn">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <circle cx="16" cy="16" r="8" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Add Shape</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden inputs for uploads -->
+    <input type="file" id="bgUploadInput" accept="image/*" style="display:none">
+    <input type="file" id="elementUploadInput" accept="image/*,image/svg+xml" style="display:none">
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Generating video...</p>
+    </div>
+
+    <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
