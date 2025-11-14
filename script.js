@@ -37,31 +37,7 @@ const templates = [
                 textAlign: 'center',
                 animation: 'fadeIn'
             },
-            {
-                type: 'image',
-                src: 'data:image/svg+xml,' + encodeURIComponent(`
-                    <svg width="150" height="200" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <radialGradient id="glow">
-                                <stop offset="0%" stop-color="rgba(0,0,0,0.5)"/>
-                                <stop offset="100%" stop-color="rgba(100,150,100,0.3)"/>
-                            </radialGradient>
-                        </defs>
-                        <ellipse cx="75" cy="180" rx="60" ry="20" fill="url(#glow)"/>
-                        <path d="M 75 50 L 85 70 L 105 75 L 85 80 L 75 100 L 65 80 L 45 75 L 65 70 Z" fill="#d4af37" stroke="#8b6914" stroke-width="2"/>
-                        <ellipse cx="75" cy="95" rx="35" ry="45" fill="#e8d7a8" stroke="#8b6914" stroke-width="2"/>
-                        <rect x="60" y="110" width="30" height="40" rx="5" fill="#f0e4c4" stroke="#8b6914" stroke-width="2"/>
-                        <path d="M 60 150 L 50 170 L 40 185 M 90 150 L 100 170 L 110 185" stroke="#8b6914" stroke-width="3" fill="none"/>
-                        <ellipse cx="75" cy="185" rx="35" ry="15" fill="#a0826d" stroke="#8b6914" stroke-width="2"/>
-                    </svg>
-                `),
-                x: 150,
-                y: 450,
-                width: 150,
-                height: 200,
-                rotation: 0,
-                animation: 'zoomIn'
-            }
+            // decorative image removed from default template to avoid inserting it automatically
         ]
     },
     {
@@ -1324,6 +1300,31 @@ function setupEventListeners() {
             console.error('Failed to load saved project');
         }
     }
+
+    // remove any leftover embedded default SVGs (e.g. previous decorative assets) from loaded pages
+    (function removeEmbeddedDefaultSVGs() {
+        let removed = false;
+        if (!state.pages || !Array.isArray(state.pages)) return;
+        state.pages.forEach(page => {
+            if (!page || !Array.isArray(page.elements)) return;
+            const kept = page.elements.filter(el => {
+                if (el && el.type === 'image' && typeof el.src === 'string') {
+                    // heuristic: remove embedded SVG data URLs that contain 'radialGradient' or the common <svg> marker
+                    if (el.src.startsWith('data:image/svg+xml,') && (el.src.includes('radialGradient') || el.src.includes('<svg') || el.src.includes('%3Csvg')) ) {
+                        removed = true;
+                        return false; // drop this element
+                    }
+                }
+                return true;
+            });
+            page.elements = kept;
+        });
+        if (removed) {
+            renderPages();
+            renderCurrentSlide();
+            saveToHistory();
+        }
+    })();
 
     // ensure zoom UI reflects state on load
     updateZoom();
